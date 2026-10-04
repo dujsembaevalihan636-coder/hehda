@@ -12,9 +12,10 @@ import type { TableName } from '../types';
 //  • локальный режим — одно SSE-соединение /api/realtime на страницу.
 // Фильтр в синтаксисе Supabase: 'table_no=eq.7'.
 
-export type RealtimeStatus = 'connecting' | 'live' | 'offline';
+export type RealtimeStatus = 'idle' | 'connecting' | 'live' | 'offline';
 
-let status: RealtimeStatus = 'connecting';
+let status: RealtimeStatus = 'idle';
+let subscriptions = 0;
 const statusListeners = new Set<() => void>();
 function setStatus(s: RealtimeStatus) {
   if (s === status) return;
@@ -73,6 +74,12 @@ function ensureSse() {
 }
 
 export function subscribe(table: TableName, filter: string | null | undefined, cb: (c: ChangeEvent) => void) {
+  subscriptions++;
+  if (status === 'idle') setStatus('connecting');
+  const done = () => {
+    subscriptions = Math.max(0, subscriptions - 1);
+    if (!subscriptions) setStatus('idle');
+  };
   if (DATA_MODE === 'local') {
     const l: Listener = { table, filter: parseFilter(filter), cb };
     listeners.add(l);
@@ -83,6 +90,7 @@ export function subscribe(table: TableName, filter: string | null | undefined, c
         es.close();
         es = null;
       }
+      done();
     };
   }
 
@@ -105,6 +113,7 @@ export function subscribe(table: TableName, filter: string | null | undefined, c
     });
   return () => {
     client.removeChannel(channel);
+    done();
   };
 }
 
@@ -132,6 +141,6 @@ export function useRealtimeStatus(): RealtimeStatus {
       return () => statusListeners.delete(l);
     },
     () => status,
-    () => 'connecting',
+    () => 'idle',
   );
 }

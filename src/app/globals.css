@@ -90,6 +90,9 @@ input[type='range'] {
     size: A4;
     margin: 10mm;
   }
+  :root {
+    color-scheme: light;
+  }
   html,
   body {
     background: #fff !important;

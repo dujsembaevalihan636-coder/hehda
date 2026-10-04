@@ -6,6 +6,7 @@ import { useRealtimeStatus } from '@/lib/realtime/client';
 
 export function LiveDot({ className = '' }: { className?: string }) {
   const s = useRealtimeStatus();
+  if (s === 'idle') return null;
   const color = s === 'live' ? 'bg-ok' : s === 'offline' ? 'bg-bad' : 'bg-warn';
   const label = s === 'live' ? t.common.live : s === 'offline' ? t.common.offline : t.common.connecting;
   return (
