@@ -3,7 +3,7 @@ import 'server-only';
 import { z } from 'zod';
 
 import { DbError } from '../db/types';
-import { HttpError } from './hall';
+import { HttpError } from './errors';
 
 // Обёртка для route handlers: единый формат ошибок { error } и валидация тела через zod.
 

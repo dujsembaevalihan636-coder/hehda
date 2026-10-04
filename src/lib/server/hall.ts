@@ -7,18 +7,12 @@ import { bucketize, median } from '../stats';
 import type { Atmosphere, Booking, FeedbackType, HallEvent, Reading, Tempo, Zone, ZoneId } from '../types';
 import { ATMOSPHERE_ZONE, isZoneId, round1, TEMPOS, ZONE_IDS } from '../zones';
 import { serverEnv } from './env';
+import { HttpError } from './errors';
 
 const iso = (ms: number) => new Date(ms).toISOString();
 const t = (s: string) => Date.parse(s);
 
-export class HttpError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
-    super(message);
-  }
-}
+export { HttpError };
 
 // ---------------------------------------------------------------- зоны
 

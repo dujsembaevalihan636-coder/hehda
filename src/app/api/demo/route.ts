@@ -2,17 +2,20 @@ import { z } from 'zod';
 
 import { getDb } from '@/lib/db';
 import { seedZones } from '@/lib/db/seed';
+import { resetRoom } from '@/lib/game/room-service';
 import { HALL_TABLES } from '@/lib/hall-layout';
 import { body, route } from '@/lib/server/http';
 
 // Служебные действия для питча: «волна броней через 20 минут» и сброс зала.
 
-const Action = z.object({ action: z.enum(['forecast', 'reset_hall']) });
+const Action = z.object({ action: z.enum(['forecast', 'reset_hall', 'reset_room']), table: z.number().int().min(1).max(999).optional() });
 
 export const POST = route(async (req) => {
-  const { action } = await body(req, Action);
+  const { action, table } = await body(req, Action);
   const db = getDb();
   const now = Date.now();
+
+  if (action === 'reset_room') return resetRoom(table ?? 7);
 
   if (action === 'forecast') {
     const at = new Date(now + 20 * 60_000).toISOString();

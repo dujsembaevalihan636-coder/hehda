@@ -114,6 +114,7 @@ export interface EpisodePlan {
   missions: EpisodePlanItem[];
   staffMission: EpisodePlanItem | null;
   decoys: EpisodePlanItem[];
+  contentIds?: string[]; // что уже видела компания — чтобы не повторяться в следующих эпизодах
 }
 
 export interface Episode {
