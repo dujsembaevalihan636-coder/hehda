@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { QrCode } from '@/components/ui/QrCode';
 import { StaffNav } from '@/components/ui/StaffNav';
 import { timeHM } from '@/lib/acoustic/format';
 import { api, ApiError } from '@/lib/client/api';
+import { usePolling } from '@/lib/client/use-polling';
 import { t } from '@/lib/i18n';
 import type { ContentItem, ContentType } from '@/lib/types';
 
@@ -73,12 +74,7 @@ export default function AdminClient({ authed: initial }: { authed: boolean }) {
     }
   }, []);
 
-  useEffect(() => {
-    if (!authed) return;
-    load();
-    const id = setInterval(load, 8000);
-    return () => clearInterval(id);
-  }, [authed, load]);
+  usePolling(load, 8000, authed);
 
   const login = async () => {
     setErr(null);

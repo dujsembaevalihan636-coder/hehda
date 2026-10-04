@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { HallMap } from '@/components/hall/HallMap';
 import { timeHM } from '@/lib/acoustic/format';
 import { api } from '@/lib/client/api';
+import { usePolling } from '@/lib/client/use-polling';
 import { t } from '@/lib/i18n';
 import type { Atmosphere, Booking, HallTable, ZoneId } from '@/lib/types';
 import { trafficLabel, ZONE_IDS, ZONES } from '@/lib/zones';
@@ -70,11 +71,7 @@ export default function BookClient() {
     }
   }, []);
 
-  useEffect(() => {
-    load();
-    const id = setInterval(load, 5_000);
-    return () => clearInterval(id);
-  }, [load]);
+  usePolling(load, 5_000);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- время берём только в браузере (без расхождения с SSR)

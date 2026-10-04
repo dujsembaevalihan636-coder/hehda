@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { StaffNav } from '@/components/ui/StaffNav';
 import { api } from '@/lib/client/api';
+import { usePolling } from '@/lib/client/use-polling';
 import type { PublicRoomState } from '@/lib/game/types';
 import { t } from '@/lib/i18n';
 import { useRealtime } from '@/lib/realtime/client';
@@ -42,11 +43,7 @@ export default function DemoTableClient() {
     }
   }, []);
 
-  useEffect(() => {
-    load();
-    const id = setInterval(load, 4000);
-    return () => clearInterval(id);
-  }, [load]);
+  usePolling(load, 4000);
 
   useRealtime<Room>('rooms', `table_no=eq.${TABLE}`, (c) => {
     if (c.new && c.new.version >= version) {
@@ -63,9 +60,14 @@ export default function DemoTableClient() {
     }
   };
 
+  // Сброс без гонок: сначала убираем «телефоны» (их запросы успевают завершиться), потом чистим стол
+  const [frames, setFrames] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const reset = async () => {
+    setResetting(true);
+    setFrames(false);
+    await new Promise((r) => setTimeout(r, 1200));
     await api('/api/demo', { body: { action: 'reset_room', table: TABLE } });
-    // Чистим «телефоны»: у каждого iframe свой ключ игрока в localStorage
     NAMES.forEach((_, i) => {
       try {
         localStorage.removeItem(`tm:${TABLE}:${i + 1}`);
@@ -74,6 +76,8 @@ export default function DemoTableClient() {
       }
     });
     setFrameKey((k) => k + 1);
+    setFrames(true);
+    setResetting(false);
     setMsg('Стол 7 свободен — телефоны входят заново');
     setTimeout(() => setMsg(null), 4000);
   };
@@ -97,29 +101,40 @@ export default function DemoTableClient() {
           <button onClick={simulate} className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-ink">
             🤖 {t.demo.simulateVotes}
           </button>
-          <button onClick={reset} className="rounded-full border border-line px-4 py-2 text-sm text-muted">
+          <button onClick={reset} disabled={resetting} className="rounded-full border border-line px-4 py-2 text-sm text-muted disabled:opacity-50">
             ↺ {t.demo.resetRoom}
           </button>
         </div>
         {msg ? <p className="w-full text-sm text-accent">{msg}</p> : null}
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
-        {NAMES.map((name, i) => (
-          <div key={`${frameKey}-${i}`} className="flex flex-col items-center gap-2">
-            <div className="text-sm text-muted">
-              📱 {name}
-              {state?.hostId && state.players.find((p) => p.id === state.hostId)?.name === name ? ' · ведущий 👑' : ''}
+      {frames ? (
+        <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+          {NAMES.map((name, i) => (
+            <div key={`${frameKey}-${i}`} className="flex flex-col items-center gap-2">
+              <div className="text-sm text-muted">
+                📱 {name}
+                {state?.hostId && state.players.find((p) => p.id === state.hostId)?.name === name ? ' · ведущий 👑' : ''}
+              </div>
+              <div className="overflow-hidden rounded-[2.2rem] border-[10px] border-[#2a201a] bg-bg shadow-2xl" style={{ width: 360, height: 720 }}>
+                <iframe
+                  title={`Телефон ${name}`}
+                  src={`/t/${TABLE}?slot=${i + 1}&name=${encodeURIComponent(name)}&embed=1`}
+                  className="h-full w-full"
+                />
+              </div>
             </div>
-            <div className="overflow-hidden rounded-[2.2rem] border-[10px] border-[#2a201a] bg-bg shadow-2xl" style={{ width: 360, height: 720 }}>
-              <iframe
-                title={`Телефон ${name}`}
-                src={`/t/${TABLE}?slot=${i + 1}&name=${encodeURIComponent(name)}&embed=1`}
-                className="h-full w-full"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-line px-6 py-16 text-center">
+          <p className="max-w-lg text-muted">
+            Четыре «телефона» сядут за стол 7 (Аня — ведущая). Можно играть в каждом окне или жать «Симулировать голоса», чтобы пройти раунды за секунды.
+          </p>
+          <button onClick={reset} disabled={resetting} className="rounded-full bg-accent px-6 py-3 text-lg font-semibold text-accent-ink disabled:opacity-60">
+            {resetting ? 'Готовим стол…' : '▶︎ Начать демо (сбросить стол 7)'}
+          </button>
+        </div>
+      )}
     </main>
   );
 }

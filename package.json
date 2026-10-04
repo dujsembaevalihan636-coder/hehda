@@ -5,7 +5,7 @@
   "scripts": {
     "predev": "node scripts/music-manifest.mjs",
     "dev": "next dev",
-    "dev:https": "node scripts/music-manifest.mjs && next dev --experimental-https -H 0.0.0.0",
+    "dev:https": "node scripts/music-manifest.mjs && next dev --experimental-https",
     "prebuild": "node scripts/music-manifest.mjs",
     "build": "next build",
     "start": "next start",

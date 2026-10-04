@@ -34,7 +34,6 @@ export function ZoneCard({ zone, latest, series, control, metrics, onPatch, onCa
   const dragging = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- синхронизация с realtime, пока не тянем ползунок
     if (!dragging.current) setVol(zone.music_volume);
   }, [zone.music_volume]);
 

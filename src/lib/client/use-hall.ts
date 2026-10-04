@@ -9,6 +9,7 @@ import type { Booking, Feedback, HallEvent, HallTable, Reading, Zone, ZoneId } f
 import { ZONE_IDS } from '../zones';
 import { api } from './api';
 import { mergeEvents } from './use-events';
+import { usePolling } from './use-polling';
 
 // Живые данные зала для дашборда и демо: снимок + realtime + цикл алгоритма раз в 5 секунд.
 
@@ -116,23 +117,9 @@ export function useHall({ runControl = false }: { runControl?: boolean } = {}) {
 
   // Первичная загрузка и страховочный опрос: часто — если realtime недоступен
   const live = rt === 'live';
-  useEffect(() => {
-    load();
-    loadMetrics();
-    const id = setInterval(load, live ? 60_000 : 5_000);
-    const mid = setInterval(loadMetrics, 30_000);
-    return () => {
-      clearInterval(id);
-      clearInterval(mid);
-    };
-  }, [load, loadMetrics, live]);
-
-  useEffect(() => {
-    const tick = () => setNow(Date.now());
-    tick();
-    const id = setInterval(tick, 2_000);
-    return () => clearInterval(id);
-  }, []);
+  usePolling(load, live ? 60_000 : 5_000);
+  usePolling(loadMetrics, 30_000);
+  usePolling(() => setNow(Date.now()), 2_000);
 
   // Алгоритм управления — раз в 5 секунд
   const runningRef = useRef(false);

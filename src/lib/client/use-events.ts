@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useRealtime } from '../realtime/client';
 import type { HallEvent, ZoneId } from '../types';
 import { api } from './api';
+import { usePolling } from './use-polling';
 
 /** Лента событий зала (или одной зоны) с realtime-добавлением новых. */
 export function useHallEvents(zone: ZoneId | null, limit = 40) {
@@ -19,11 +20,7 @@ export function useHallEvents(zone: ZoneId | null, limit = 40) {
     }
   }, [zone, limit]);
 
-  useEffect(() => {
-    load();
-    const id = setInterval(load, 15_000);
-    return () => clearInterval(id);
-  }, [load]);
+  usePolling(load, 15_000);
 
   useRealtime<HallEvent>('events', zone ? `zone_id=eq.${zone}` : null, (c) => {
     if (c.eventType === 'INSERT' && c.new) setEvents((prev) => mergeEvents(prev, [c.new as HallEvent], limit));

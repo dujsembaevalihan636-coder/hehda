@@ -34,9 +34,12 @@ export function FridaySimulation({ autoStart = false }: { autoStart?: boolean })
   };
 
   useEffect(() => {
-    if (autoStart) start();
-    return () => cancelAnimationFrame(raf.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const first = autoStart ? setTimeout(start, 0) : undefined;
+    return () => {
+      clearTimeout(first);
+      cancelAnimationFrame(raf.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- запускаем один раз при монтировании
   }, []);
 
   const cursor = Math.max(0, m);

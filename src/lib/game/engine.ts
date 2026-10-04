@@ -324,7 +324,7 @@ function finish(s: RoomState, ctx: Ctx, effects: Effect[]): string | null {
         .filter((p) => p.memberId && !members.some((m) => m.id === p.memberId))
         .map((p) => ({ memberId: p.memberId as string, name: p.name, total: s.points[p.id] ?? 0, gained: s.points[p.id] ?? 0 })),
     )
-    .sort((a, b) => b.total - a.total || b.gained - a.gained);
+    .sort((a, b) => b.total - a.total || b.gained - a.gained || Number(b.memberId === mvp?.memberId) - Number(a.memberId === mvp?.memberId));
 
   const quote = bestQuote ? { text: bestQuote.text, by: playerName(s, bestQuote.playerId) } : null;
   const input: SummaryInput = {
@@ -697,6 +697,8 @@ export function reduce(prev: RoomState, action: Action, ctx: Ctx): ReduceResult 
       if (!q) return fail('Нет такой фразы');
       if (q.playerId === actor!.id) return fail('За свою фразу голосовать нельзя');
       f.quoteVotes[actor!.id] = q.id;
+      const row = answer(s, actor!.id, { kind: 'quote_vote', quote: q.text });
+      if (row) effects.push({ kind: 'insertAnswers', rows: [row] });
       break;
     }
 

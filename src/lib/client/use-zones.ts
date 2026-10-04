@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useRealtime } from '../realtime/client';
 import type { Zone } from '../types';
 import { api } from './api';
+import { usePolling } from './use-polling';
 
 const norm = (z: Zone): Zone => ({
   ...z,
@@ -38,11 +39,7 @@ export function useZones(pollMs = 10_000) {
     }
   }, [merge]);
 
-  useEffect(() => {
-    load();
-    const id = setInterval(load, pollMs);
-    return () => clearInterval(id);
-  }, [load, pollMs]);
+  usePolling(load, pollMs);
 
   useRealtime<Zone>('zones', null, (c) => {
     if (!c.new) return;

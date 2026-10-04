@@ -127,7 +127,8 @@ class MemoryDb implements Db {
 
   constructor(file: string) {
     this.bus.setMaxListeners(0);
-    this.file = path.resolve(process.cwd(), file);
+    // Файл нужен только локальному режиму; на Vercel работает Supabase — не трассируем проект
+    this.file = path.resolve(/*turbopackIgnore: true*/ process.cwd(), file);
     this.store = this.load();
   }
 

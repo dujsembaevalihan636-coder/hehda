@@ -160,5 +160,8 @@ export type PublicPlayer = Omit<Player, 'keyHash'>;
 export type PublicRoomState = Omit<RoomState, 'players'> & { players: PublicPlayer[] };
 
 export function toPublic(state: RoomState): PublicRoomState {
-  return { ...state, players: state.players.map(({ keyHash: _k, ...p }) => p) };
+  return {
+    ...state,
+    players: state.players.map((p) => ({ id: p.id, name: p.name, memberId: p.memberId, joinedAt: p.joinedAt, lastSeen: p.lastSeen })),
+  };
 }

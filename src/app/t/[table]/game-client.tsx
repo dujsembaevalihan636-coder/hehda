@@ -10,6 +10,7 @@ import { SummaryScreen } from '@/components/game/SummaryScreen';
 import { Avatar, BigButton, Screen } from '@/components/game/ui';
 import { VoteScreen } from '@/components/game/VoteScreen';
 import { api, ApiError, storageGet, storageSet } from '@/lib/client/api';
+import { useNow, usePolling } from '@/lib/client/use-polling';
 import type { PublicRoomState, RoomState } from '@/lib/game/types';
 import { fmt, t } from '@/lib/i18n';
 import { useRealtime, useRealtimeStatus } from '@/lib/realtime/client';
@@ -55,7 +56,6 @@ export default function GameClient({
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [name, setName] = useState('');
-  const [now, setNow] = useState(() => 0);
   const rt = useRealtimeStatus();
 
   const flash = useCallback((msg: string) => {
@@ -90,18 +90,8 @@ export default function GameClient({
   }, [table, applyRoom]);
 
   const live = rt === 'live';
-  useEffect(() => {
-    load();
-    const id = setInterval(load, live ? 15_000 : 3_000);
-    return () => clearInterval(id);
-  }, [load, live]);
-
-  useEffect(() => {
-    const tick = () => setNow(Date.now());
-    tick();
-    const id = setInterval(tick, 3_000);
-    return () => clearInterval(id);
-  }, []);
+  usePolling(load, live ? 15_000 : 3_000);
+  const now = useNow(3_000);
 
   useRealtime<Room>('rooms', `table_no=eq.${table}`, (c) => {
     if (!c.new) return;
@@ -158,17 +148,25 @@ export default function GameClient({
   const state = room?.state ?? null;
   const myPlayer = state && me ? state.players.find((p) => p.id === me.playerId) : undefined;
 
-  // Возвращение после сброса стола или авто-вход в демо (iframe с ?name=)
+  // Возвращение после сброса стола или авто-вход в демо (iframe с ?name=).
+  // Таймер зависит только от факта «нужно войти», иначе каждое обновление комнаты его сбрасывало бы.
   const autoTried = useRef(false);
+  const autoJoinName = me?.name || autoName || '';
+  const needAutoJoin = Boolean(state) && me !== undefined && !myPlayer && Boolean(autoJoinName);
+  const autoNameRef = useRef(autoJoinName);
   useEffect(() => {
-    if (!state || me === undefined || myPlayer || busy || autoTried.current) return;
-    const n = me?.name || autoName;
-    if (!n) return;
-    autoTried.current = true;
+    autoNameRef.current = autoJoinName;
+  }, [autoJoinName]);
+  useEffect(() => {
+    if (!needAutoJoin || autoTried.current) return;
     const delay = slot ? Math.max(0, Number(slot.replace(/\D/g, '')) - 1) * 350 : 0;
-    const id = setTimeout(() => join(n), delay);
+    const id = setTimeout(() => {
+      if (autoTried.current) return;
+      autoTried.current = true;
+      join(autoNameRef.current);
+    }, delay);
     return () => clearTimeout(id);
-  }, [state, me, myPlayer, busy, autoName, slot, join]);
+  }, [needAutoJoin, slot, join]);
 
   // Присутствие: пинг раз в 20 секунд, пока экран открыт
   const inRoom = Boolean(myPlayer);
@@ -243,7 +241,7 @@ export default function GameClient({
     me: myPlayer,
     isHost: state.hostId === myPlayer.id,
     host: state.players.find((p) => p.id === state.hostId) ?? null,
-    now: now || Date.now(),
+    now,
     busy,
     act: (a) => act(a),
     credentials,
