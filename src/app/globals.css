@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+/* Тёмная тёплая палитра под вечерний ресторан: не слепит в полумраке, один акцентный цвет. */
+@theme {
+  --color-bg: #110d0b;
+  --color-surface: #1b1512;
+  --color-surface-2: #241c17;
+  --color-surface-3: #2f241d;
+  --color-line: #3a2d25;
+  --color-ink: #f6ece2;
+  --color-muted: #b9a797;
+  --color-faint: #7d6d61;
+  --color-accent: #f59e4c;
+  --color-accent-soft: #f59e4c26;
+  --color-accent-ink: #1f1206;
+  --color-ok: #22c55e;
+  --color-warn: #eab308;
+  --color-bad: #ef4444;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --animate-fade-in: fade-in 0.35s ease-out both;
+  --animate-rise: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pop: pop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+  --animate-pulse-ring: pulse-ring 1.6s ease-out infinite;
+  --animate-shimmer: shimmer 1.4s linear infinite;
+  --animate-breathe: breathe 4s ease-in-out infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop {
+    0% { opacity: 0; transform: scale(0.85); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgb(239 68 68 / 0.55); }
+    100% { box-shadow: 0 0 0 14px rgb(239 68 68 / 0); }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.55; transform: scale(0.98); }
+    50% { opacity: 1; transform: scale(1.02); }
+  }
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface-2) 25%, var(--color-surface-3) 50%, var(--color-surface-2) 75%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+/* Ползунки в тёплой палитре */
+input[type='range'] {
+  accent-color: var(--color-accent);
+}
+
+/* Печать QR-карточек */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
