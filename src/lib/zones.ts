@@ -32,7 +32,7 @@ export const ZONES: Record<ZoneId, ZoneMeta> = {
     maxTempo: 'mid',
     musicRefDb: 60,
     musicRefVolume: 0.6,
-    hue: '#7dd3fc',
+    hue: '#3987e5',
   },
   B: {
     id: 'B',
@@ -46,7 +46,7 @@ export const ZONES: Record<ZoneId, ZoneMeta> = {
     maxTempo: 'mid',
     musicRefDb: 64,
     musicRefVolume: 0.65,
-    hue: '#c4b5fd',
+    hue: '#d55181',
   },
   C: {
     id: 'C',
@@ -60,7 +60,7 @@ export const ZONES: Record<ZoneId, ZoneMeta> = {
     maxTempo: 'fast',
     musicRefDb: 71,
     musicRefVolume: 0.75,
-    hue: '#fda4af',
+    hue: '#c98500',
   },
 };
 
@@ -132,11 +132,12 @@ export function levelStatus(db: number | null | undefined, min: number, max: num
   return 'ok';
 }
 
+// Статусная палитра фиксирована и не пересекается с цветами зон; всегда идёт с подписью.
 export const STATUS_COLOR: Record<LevelStatus, string> = {
-  ok: '#22c55e',
-  warn: '#eab308',
-  bad: '#ef4444',
-  none: '#57534e',
+  ok: '#0ca30c',
+  warn: '#fab219',
+  bad: '#d03b3b',
+  none: '#6b5d52',
 };
 
 export const STATUS_LABEL: Record<LevelStatus, string> = {
@@ -149,9 +150,9 @@ export const STATUS_LABEL: Record<LevelStatus, string> = {
 /** «Пробки» для гостей: тихо / умеренно / шумно — по абсолютному уровню. */
 export function trafficLabel(db: number | null): { label: string; color: string } {
   if (db === null) return { label: 'нет данных', color: STATUS_COLOR.none };
-  if (db < 64) return { label: 'тихо', color: '#22c55e' };
-  if (db < 72) return { label: 'умеренно', color: '#eab308' };
-  return { label: 'шумно', color: '#ef4444' };
+  if (db < 64) return { label: 'тихо', color: STATUS_COLOR.ok };
+  if (db < 72) return { label: 'умеренно', color: STATUS_COLOR.warn };
+  return { label: 'шумно', color: STATUS_COLOR.bad };
 }
 
 export const pct = (v: number) => `${Math.round(v * 100)}%`;

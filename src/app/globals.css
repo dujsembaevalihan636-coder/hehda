@@ -13,9 +13,9 @@
   --color-accent: #f59e4c;
   --color-accent-soft: #f59e4c26;
   --color-accent-ink: #1f1206;
-  --color-ok: #22c55e;
-  --color-warn: #eab308;
-  --color-bad: #ef4444;
+  --color-ok: #0ca30c;
+  --color-warn: #fab219;
+  --color-bad: #d03b3b;
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
