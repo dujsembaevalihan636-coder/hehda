@@ -7,6 +7,7 @@ import { EventFeed } from '@/components/hall/EventFeed';
 import { FridaySimulation } from '@/components/hall/FridaySimulation';
 import { PlayerPanel } from '@/components/hall/PlayerPanel';
 import { ZoneCard } from '@/components/hall/ZoneCard';
+import { ConfirmButton } from '@/components/ui/ConfirmButton';
 import { QrCode, useOrigin } from '@/components/ui/QrCode';
 import { StaffNav } from '@/components/ui/StaffNav';
 import { api } from '@/lib/client/api';
@@ -46,7 +47,6 @@ export default function DemoHallClient() {
   };
 
   const reset = async () => {
-    if (!window.confirm(t.demo.resetConfirm)) return;
     setFake(false);
     await api('/api/demo', { body: { action: 'reset_hall' } });
     await hall.reload();
@@ -78,9 +78,9 @@ export default function DemoHallClient() {
           <button onClick={forecast} className="rounded-full border border-line px-4 py-2 text-sm">
             📅 {t.demo.forecast}
           </button>
-          <button onClick={reset} className="rounded-full border border-line px-4 py-2 text-sm text-muted">
+          <ConfirmButton question={t.demo.resetConfirm} onConfirm={reset} className="rounded-full border border-line px-4 py-2 text-sm text-muted">
             ↺ {t.demo.reset}
-          </button>
+          </ConfirmButton>
         </div>
         {msg ? <p className="w-full animate-fade-in text-sm text-accent">{msg}</p> : null}
       </div>

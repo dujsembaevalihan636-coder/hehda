@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 
+import { ConfirmButton } from '@/components/ui/ConfirmButton';
 import { QrCode } from '@/components/ui/QrCode';
 import { StaffNav } from '@/components/ui/StaffNav';
 import { timeHM } from '@/lib/acoustic/format';
@@ -121,7 +122,6 @@ export default function AdminClient({ authed: initial }: { authed: boolean }) {
   };
 
   const resetTable = async (table: number) => {
-    if (!window.confirm(`Сбросить стол ${table}? Незавершённый эпизод будет отмечен как брошенный.`)) return;
     await api('/api/admin/rooms', { body: { action: 'reset', table } });
     load();
   };
@@ -214,9 +214,13 @@ export default function AdminClient({ authed: initial }: { authed: boolean }) {
                     {r.players.join(', ')} {r.host ? `· ведущий ${r.host}` : ''} · {timeHM(r.updated_at)}
                   </p>
                 </div>
-                <button onClick={() => resetTable(r.table_no)} className="shrink-0 rounded-lg border border-line px-2.5 py-1 text-xs text-muted">
+                <ConfirmButton
+                  question={t.admin.resetTableConfirm}
+                  onConfirm={() => resetTable(r.table_no)}
+                  className="shrink-0 rounded-lg border border-line px-2.5 py-1 text-xs text-muted"
+                >
                   Сбросить
-                </button>
+                </ConfirmButton>
               </li>
             ))}
           </ul>

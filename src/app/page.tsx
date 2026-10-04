@@ -26,7 +26,7 @@ export default async function Home() {
   const ai = aiEnabled();
   return (
     <main className="mx-auto flex min-h-dvh max-w-6xl flex-col gap-8 px-4 py-8 lg:py-12">
-      <header className="flex flex-wrap items-end justify-between gap-4">
+      <header className="flex flex-col gap-5">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">MVP для хакатона</p>
           <h1 className="mt-2 text-4xl font-bold leading-tight lg:text-5xl">
@@ -38,16 +38,16 @@ export default async function Home() {
             телефон — пульт, а не экран.
           </p>
         </div>
-        <div className="flex flex-col items-end gap-2 text-sm">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <Link href="/demo" className="rounded-full bg-accent px-5 py-2.5 font-semibold text-accent-ink">
+            ▶︎ Демо для питча
+          </Link>
           <span className="rounded-full bg-surface-2 px-3 py-1 text-muted">
             Данные: <b className="text-ink">{DATA_MODE === 'supabase' ? 'Supabase' : 'локальный режим'}</b>
           </span>
           <span className={`rounded-full px-3 py-1 ${ai ? 'bg-ok/15 text-ok' : 'bg-surface-2 text-muted'}`}>
             AI: {ai ? serverEnv.anthropicModel : 'нет ключа — работает на сиде'}
           </span>
-          <Link href="/demo" className="mt-1 rounded-full bg-accent px-5 py-2.5 font-semibold text-accent-ink">
-            ▶︎ Демо для питча
-          </Link>
         </div>
       </header>
 

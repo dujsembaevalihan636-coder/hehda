@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react';
 
+import { PhoneScreen } from '@/components/game/PhoneScreen';
 import { StaffNav } from '@/components/ui/StaffNav';
 import { api } from '@/lib/client/api';
 import { usePolling } from '@/lib/client/use-polling';
@@ -116,11 +117,7 @@ export default function DemoTableClient() {
                 {state?.hostId && state.players.find((p) => p.id === state.hostId)?.name === name ? ' · ведущий 👑' : ''}
               </div>
               <div className="overflow-hidden rounded-[2.2rem] border-[10px] border-[#2a201a] bg-bg shadow-2xl" style={{ width: 360, height: 720 }}>
-                <iframe
-                  title={`Телефон ${name}`}
-                  src={`/t/${TABLE}?slot=${i + 1}&name=${encodeURIComponent(name)}&embed=1`}
-                  className="h-full w-full"
-                />
+                <PhoneScreen table={TABLE} slot={String(i + 1)} name={name} />
               </div>
             </div>
           ))}

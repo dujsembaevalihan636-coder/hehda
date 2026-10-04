@@ -3,13 +3,15 @@
 import QRCode from 'qrcode';
 import { useEffect, useState } from 'react';
 
+import { pageOrigin } from '@/lib/client/origin';
+
 /** QR-код в SVG. value может быть относительным путём — тогда добавляется origin страницы. */
 export function QrCode({ value, size = 160, className = '' }: { value: string; size?: number; className?: string }) {
   const [svg, setSvg] = useState<string | null>(null);
   const [url, setUrl] = useState(value);
 
   useEffect(() => {
-    const full = value.startsWith('http') ? value : `${window.location.origin}${value}`;
+    const full = value.startsWith('http') ? value : `${pageOrigin()}${value}`;
     let alive = true;
     QRCode.toString(full, { type: 'svg', margin: 1, errorCorrectionLevel: 'M', color: { dark: '#1b1512', light: '#ffffff' } })
       .then((s) => {
@@ -40,7 +42,7 @@ export function useOrigin() {
   const [origin, setOrigin] = useState('');
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- origin известен только в браузере
-    setOrigin(window.location.origin);
+    setOrigin(pageOrigin());
   }, []);
   return origin;
 }

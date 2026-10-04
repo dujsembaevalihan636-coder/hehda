@@ -45,3 +45,6 @@ next-env.d.ts
 # сертификаты next dev --experimental-https
 /certificates/
 !.env.example
+
+# HTML-версия (npm run build:html)
+/standalone/dist/

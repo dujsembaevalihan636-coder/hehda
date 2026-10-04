@@ -1,0 +1,26 @@
+@import "../src/app/globals.css";
+
+/* Телефоны демо Table Mode рисуются прямо на странице: у экрана своя прокрутка,
+   а transform делает его рамкой для position: fixed (тосты остаются внутри телефона). */
+.phone-screen {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.phone-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.phone-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Внутри рамки «весь экран» — это экран телефона, а не окна браузера */
+.phone-screen .min-h-dvh {
+  min-height: 100%;
+}
